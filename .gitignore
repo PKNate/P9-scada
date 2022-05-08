@@ -1,0 +1,10 @@
+$ cat .gitignore
+# exclude everything except directory foo/bar
+/*
+!.gitignore
+!Master.c
+!Slave_Sensors.c
+!Slave_GLCD.c
+!Slave_Motors.c
+!README.md
+!P9 (SPI).pdsprj
