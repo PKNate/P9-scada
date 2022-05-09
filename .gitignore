@@ -3,8 +3,8 @@ $ cat .gitignore
 /*
 !.gitignore
 !Master.c
-!Slave_Sensors.c
-!Slave_GLCD.c
-!Slave_Motors.c
+!S_Sensor.c
+!S_GLCD.c
+!S_Motor.c
 !README.md
 !P9 (SPI).pdsprj
