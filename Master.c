@@ -8,32 +8,77 @@
 #define S_SENSOR PIN_C0
 #define S_GLCD PIN_C1
 #define S_MOTOR PIN_C2
+#define RED_LED PIN_D6
+#define GREEN_LED PIN_D7
+
+#define ADC 1
+#define PWM 2
+#define GLCD 3
 
 //RCSTA: RECEIVE STATUS AND CONTROL REGISTER
 
 #bit CREN=0xFAB.4    // Continuous Receive Enable Bit
 #bit OERR=0xFAB.1    // Overrun Error Bit
 
-/*
-// comandos
-#define ADC    1
-#define CONT   2
-#define PUSH   3
-*/
+int distance=0;
 
 void fflush();
+void btConnection();
+void btCommands();
+void writePWM(int duty);
+void writeGLCD(int D1, int D2);
+int readSensor();
 
 void main()
 {
-   int i;
-   short notConnected=1;
-   char c, s[50];
+   int mDist;
    
    output_high(S_SENSOR);
    output_high(S_GLCD);
    output_high(S_MOTOR);
-   output_high(PIN_D6);
    setup_spi(spi_master | spi_l_to_h | spi_clk_div_4);
+   
+   btConnection();
+   btCommands();
+   
+   while(true)
+   {
+      mDist=readSensor();
+      
+      if(mDist<=distance)
+      {
+         writeGLCD(mDist, distance);
+         writePWM(50);
+      }
+      
+      else
+      {
+         writeGLCD(distance, distance);
+         writePWM(0);
+         //PWM Duty Cycle 0, restart variables
+         btCommands();
+      }
+   }
+}
+
+void fflush()
+{
+   if(OERR)
+   {
+      getc();     //Clear buffer
+      getc();
+      CREN=0;      //Clear CREN bit
+      CREN=1;           
+   }
+}
+
+void btConnection()
+{
+   int i;
+   short notConnected=1;
+   char s[50];
+   
+   output_high(RED_LED);
    
    while(notConnected)
    {
@@ -49,13 +94,18 @@ void main()
       }
    }
    
-   printf("Connected succesfully\n\r");
+   output_low(RED_LED);
+   output_high(GREEN_LED);
+   
+   printf("CONNECTED\n\r");
+}
+
+void btCommands()
+{
+   char c;
    
    while(true)
    {
-      output_low(PIN_D6);
-      output_high(PIN_D7);
-      
       fflush();
       if(kbhit())
       {
@@ -64,42 +114,52 @@ void main()
          {
             case '1':
             {
-               printf("Command received: %c\n\r",c);
-               output_low(S_SENSOR);
-               spi_write(1);
-               output_high(S_SENSOR);
+               printf("START: ");
+               if(distance)
+               {
+                  printf("OK\n\r"); 
+                  return;
+               }
+               else
+               printf("NO DISTANCE SELECTED\n\r");
+
                break;
             }
             
             case '2':
             {
-               printf("Command received: %c\n\r",c);
-               output_low(S_GLCD);
-               spi_write(2);
-               output_high(S_GLCD);
+               printf("STOP: OK\n\r");
+               //PWM Duty cycle 0, restart all variables
+               distance=0;
                break;
             }
             
             case '3':
             {
-               printf("Command received: %c\n\r",c);
-               output_low(S_MOTOR);
-               spi_write(3);
-               output_high(S_MOTOR);
+               printf("7 CM: OK\n\r");
+               distance=7;
                break;
             }
+            
+            case '4':
+            {
+               printf("15 CM: OK\n\r");
+               distance=15;
+               break;
+            }
+            
+            case '5':
+            {
+               printf("19 CM: OK\n\r");
+               distance=19;
+               break;
+            }       
          }
       }
-   }
+   }  
 }
 
-void fflush()
-{
-   if(OERR)
-   {
-      getc();     //Clear buffer
-      getc();
-      CREN=0;      //Clear CREN bit
-      CREN=1;           
-   }
-}
+void writeGLCD(int distance)
+{}
+
+
