@@ -1,39 +1,57 @@
 #include <18f4550.h>
-#fuses INTRC_IO, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
-#use delay (clock=8M)
+#fuses HSPLL, PLL2, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
+#use delay (clock=48M)
 
 #BYTE SSPBUF = 0xFC9
 
-/*
-// comandos
-#define ADC    1
-#define CONT   2
-#define PUSH   3
-*/
-int data;
+#define TRIGGER PIN_B3
+#define SETUP 1
+#define LOOP 2
+#define END 3
+
+int8 distance=0;
+int32 data=0;
+short noTrigger = 1;
+
+#INT_EXT2
+void measure()
+{
+   set_timer0(0);
+   while(input(PIN_B2));
+   
+   data=get_timer0();
+   data=(data/87.4635);
+   
+   if(data>255)
+   data=255;
+   
+   distance=data;
+   noTrigger = 1;
+}
 
 #int_ssp
 void spi_rcv()
 {  
-   data = SSPBUF;
-   
-   switch(data)
-   {
-      case 1:
-         output_toggle(PIN_D0);
-      break;
-   }  
+   SSPBUF=distance;
 }
+
 
 void main()
 {
    setup_spi(spi_slave | spi_L_to_H);
-   enable_interrupts(INT_SSP);
+   enable_interrupts(INT_SSP|INT_EXT2_L2H);
    enable_interrupts(GLOBAL);
-   
+   setup_timer_0(T0_INTERNAL|T0_DIV_8);
+
    while(true)
    {
+      if(noTrigger)
+      {
+         output_high(TRIGGER);
+         delay_us(10);
+         output_low(TRIGGER);
+         noTrigger=0;
+      }
    }
-   
 }
 

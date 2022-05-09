@@ -1,7 +1,7 @@
 #include <18f4550.h>
-#fuses INTRC_IO, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
-#use delay (clock=8M)
-#use rs232(xmit = PIN_D0, rcv = PIN_D1, baud =9600, bits = 8, parity = N, stream = TTL)
+#fuses HSPLL, PLL2, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
+#use delay (clock=48M)
+#use rs232(xmit = PIN_D0, rcv = PIN_D1, baud =9600, bits = 8, parity = N)
 #include <string.h>
 #include <stdlib.h>
 
@@ -11,53 +11,60 @@
 #define RED_LED PIN_D6
 #define GREEN_LED PIN_D7
 
-#define ADC 1
-#define PWM 2
-#define GLCD 3
+#define SETUP 1
+#define LOOP 2
+#define END 3
 
 //RCSTA: RECEIVE STATUS AND CONTROL REGISTER
 
 #bit CREN=0xFAB.4    // Continuous Receive Enable Bit
 #bit OERR=0xFAB.1    // Overrun Error Bit
 
-int distance=0;
-
 void fflush();
 void btConnection();
-void btCommands();
-void writePWM(int duty);
-void writeGLCD(int D1, int D2);
+int btCommands();
+void writeGLCD(int command, int mDistance);
+void writePWM(int command, int mDistance);
 int readSensor();
 
 void main()
 {
-   int mDist;
+   signed int mDistance=0, Distance=0;
    
+   //SPI Config
    output_high(S_SENSOR);
    output_high(S_GLCD);
    output_high(S_MOTOR);
    setup_spi(spi_master | spi_l_to_h | spi_clk_div_4);
    
    btConnection();
-   btCommands();
    
+   start:
+   Distance=btCommands();
+   /*
+   writeGLCD(SETUP,Distance);
+   writePWM(SETUP,Distance);
+   */
    while(true)
    {
-      mDist=readSensor();
-      
-      if(mDist<=distance)
+      mDistance=readSensor();
+      printf("Distance read: %i\n\r",mDistance);
+      /*
+      if(mDistance>Distance)
       {
-         writeGLCD(mDist, distance);
-         writePWM(50);
+         writeGLCD(LOOP,mDistance);
+         writePWM(LOOP,mDistance);
       }
       
       else
       {
-         writeGLCD(distance, distance);
-         writePWM(0);
-         //PWM Duty Cycle 0, restart variables
-         btCommands();
+         writeGLCD(END,Distance);
+         writePWM(END,Distance);
+         Distance=0;
+         mDistance=0;
+         goto start;
       }
+      */
    }
 }
 
@@ -100,9 +107,12 @@ void btConnection()
    printf("CONNECTED\n\r");
 }
 
-void btCommands()
+int btCommands()
 {
+   int distance=0;
    char c;
+   
+   printf("ENTER COMMAND: \n\r");
    
    while(true)
    {
@@ -118,7 +128,7 @@ void btCommands()
                if(distance)
                {
                   printf("OK\n\r"); 
-                  return;
+                  return distance;
                }
                else
                printf("NO DISTANCE SELECTED\n\r");
@@ -159,7 +169,33 @@ void btCommands()
    }  
 }
 
-void writeGLCD(int distance)
-{}
+void writeGLCD(int command, int mDistance)
+{
+   output_low(S_GLCD);
+   spi_write(command);
+   //Could it work without a delay?
+   spi_write(mDistance);
+   output_high(S_GLCD);
+}
 
+void writePWM(int command, int mDistance)
+{
+   output_low(S_MOTOR);
+   spi_write(command);
+   //Could it work without a delay?
+   spi_write(mDistance);
+   output_high(S_GLCD);
+}
 
+int readSensor()
+{
+   int temp=0;
+   
+   output_low(S_GLCD);
+   spi_write(LOOP);
+   //Could it work without a delay?
+   //temp=spi_read();
+   output_high(S_GLCD);
+   
+   return temp;
+}

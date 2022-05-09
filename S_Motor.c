@@ -1,27 +1,24 @@
 #include <18f4550.h>
-#fuses INTRC_IO, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
-#use delay (clock=8M)
+#fuses HSPLL, PLL2, CPUDIV1, NOPROTECT, NOWDT, NOMCLR, NOLVP
+#use delay (clock=48M)
 
 #BYTE SSPBUF = 0xFC9
 
-/*
-// comandos
-#define ADC    1
-#define CONT   2
-#define PUSH   3
-*/
+#define SETUP 1
+#define LOOP 2
+#define END 3
+
 int data;
 
 #int_ssp
 void spi_rcv()
 {  
-   output_toggle(PIN_D0);
    data = SSPBUF;
    
    switch(data)
    {
       case 3:
-         
+         output_toggle(PIN_D0);
       break;
    }  
 }
