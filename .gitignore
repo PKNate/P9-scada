@@ -2,6 +2,7 @@ $ cat .gitignore
 # exclude everything except directory foo/bar
 /*
 !.gitignore
+!glcd_edit.c
 !Master.c
 !S_Sensor.c
 !S_GLCD.c
