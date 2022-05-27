@@ -91,11 +91,11 @@
 #define NO  0
 
 #ifndef GLCD_CS1
-#define GLCD_CS1 PIN_C6   // Chip Selection 1
+#define GLCD_CS1 PIN_C1   // Chip Selection 1
 #endif
 
 #ifndef GLCD_CS2
-#define GLCD_CS2 PIN_C7   // Chip Selection 2
+#define GLCD_CS2 PIN_C2   // Chip Selection 2
 #endif
 
 #ifndef GLCD_DI
