@@ -1,6 +1,6 @@
 #include <18f4550.h>
-#fuses HSPLL, NOPROTECT, NOWDT, NOLVP, NOMCLR, PLL2, CPUDIV1
-#use delay (clock = 48000000)
+#fuses INTRC, NOPROTECT, NOWDT, NOLVP, NOMCLR, PLL2, CPUDIV1
+#use delay (clock = 8M)
 #include <glcd_edit.c>
 #BYTE TRISB = 0xF93
 #BYTE INTCON  = 0xFF2
@@ -9,6 +9,33 @@
 #BYTE T0CON = 0xFD5
 #BIT TMR0ON = 0xFD5.7
 
+#BYTE SSPBUF = 0xFC9
+#define STOP 4
+#define SETUP 5
+/*
+int data;
+#int_ssp
+void spi_rcv()
+{  
+   data = SSPBUF;
+   
+   switch(data)
+   {
+      case FORWARD:
+      {
+         STBY=1;
+         motor('D',(int16)770,'D',(int16)700);
+         break;
+      }
+      
+      case STOP:
+      {
+         STBY=0;
+         motor('N',(int16)0,'N',(int16)0);
+         break;
+      }
+   }
+*/
 short spriteCar[14][10]={
 0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
 0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
@@ -114,7 +141,11 @@ void drawObstacle(int distance);
 void main()
 {   
    int i;
+   setup_spi(spi_slave | spi_L_to_H);
+   //enable_interrupts(INT_SSP);
+   //enable_interrupts(GLOBAL);
    glcd_init(on);
+   delay_ms(1000);
    
    while (true)
    {
@@ -133,9 +164,7 @@ void main()
       
       delay_ms(1000);
       prevDistance=0;
-      
-      //glcd_fillScreen(0);
-      
+
    }
 }
 
