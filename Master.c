@@ -34,6 +34,13 @@ float distancia=0;
 int distancia_int;
 int desiredDistance;
 float desiredDistance_float;
+short goalFlag=0;
+
+#int_timer0
+void goal(){
+   goalFlag=1;
+}
+
 
 void fflush();
 void btConnection();
@@ -50,11 +57,17 @@ void main()
    setup_spi(spi_master | spi_l_to_h | spi_clk_div_4);
    delay_ms(5000);
    
+   setup_timer_0(T0_INTERNAL|T0_DIV_128);
+   set_timer0((int16)0);
+   enable_interrupts(int_timer0);
+   enable_interrupts(global);
+   
    btConnection();
    start:
    btCommands();
-   
-   desiredDistance_float=(float)desiredDistance+5.5;
+   set_timer0((int16)0);
+   goalFlag=0;
+   desiredDistance_float=(float)desiredDistance+6.5;
    writeGLCD(SETUP,desiredDistance);
 
    while(true)
@@ -66,14 +79,15 @@ void main()
       {
          writePWM(STOP);
          writeGLCD(STOP,0);
-         desiredDistance=0;
-         distancia=0;
+
+         if(goalFlag==1)
          goto start;
       }
       
       else
       {
          writePWM(FORWARD);
+         set_timer0((int16)0);
       }
    }
 }

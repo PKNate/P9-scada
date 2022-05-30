@@ -206,7 +206,7 @@ void main()
       glcd_fillScreen(0);
       drawCar();
       drawGoal(desiredDistance);
-      drawDistance(2,53,Distance);
+      drawDistance(2,53,desiredDistance);
    }
 }
 
