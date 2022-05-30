@@ -179,23 +179,23 @@ void writePWM(int command)
 }
 void readSensor()
 {
-       output_low(pin_C1); 
-       spi_write(1); // Envia el comando  
-       output_high(pin_C1); 
-       delay_ms(30); 
-       output_low(pin_C1); 
-       timer_bajo = spi_read(0); 
-       delay_ms(30); 
-       output_high(pin_C1); 
-       
-       output_low(pin_C1); 
-       spi_write(2); // Envia el comando  
-       output_high(pin_C1); 
-       delay_ms(30); 
-       output_low(pin_C1); 
-       timer_alto = spi_read(0); 
-       delay_ms(30); 
-       output_high(pin_C1); 
+   output_low(S_SENSOR); 
+   spi_write(1); // Envia el comando  
+   output_high(S_SENSOR); 
+   delay_ms(30); 
+   output_low(S_SENSOR); 
+   timer_bajo = spi_read(0); 
+   delay_ms(30); 
+   output_high(S_SENSOR); 
+   
+   output_low(S_SENSOR); 
+   spi_write(2); // Envia el comando  
+   output_high(S_SENSOR); 
+   delay_ms(30); 
+   output_low(S_SENSOR); 
+   timer_alto = spi_read(0); 
+   delay_ms(30); 
+   output_high(S_SENSOR); 
        
    timer_total=timer_alto<<8;
    timer_total+=timer_bajo;
@@ -203,9 +203,9 @@ void readSensor()
    distancia=distancia/58.3;
    
    
-   printf("Parte baja: %x\n\r",timer_bajo);
-   printf("Parte alta: %x\n\r",timer_alto);
-   printf("Distancia: %3.2f\n\r",distancia);
+   printf("LSB: %x  ",timer_bajo);
+   printf("MSB: %x  ",timer_alto);
+   printf("D: %3.2f\r\n",distancia);
 }
 
 
