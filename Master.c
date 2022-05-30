@@ -19,19 +19,19 @@
 #bit CREN=0xFAB.4    // Continuous Receive Enable Bit
 #bit OERR=0xFAB.1    // Overrun Error Bit
 
-/*
 #define CLOCK 0
 #define READLSB 1
 #define READMSB 2
 #define FORWARD 3
 #define STOP 4
 #define SETUP 5
-*/
+#define UPDATE 6
 
 int timer_alto=0;
 int timer_bajo=0;
 int16 timer_total=0;
 float distancia=0;
+int8 distancia_int;
 int16 distance;
 
 void fflush();
@@ -47,17 +47,19 @@ void main()
    output_high(S_GLCD);
    output_high(S_MOTOR);
    setup_spi(spi_master | spi_l_to_h | spi_clk_div_4);
-   
+   delay_ms(5000);
    //btConnection();
    
    //start:
    //btCommands();
-   //writeGLCD(SETUP,Distance);
+   Distance=17;
+   writeGLCD(SETUP,Distance);
 
    while(true)
    {
       readSensor();
-      delay_ms(500);
+      writeGLCD(UPDATE,distancia_int);
+      
       /*
       if(>Distance)
       {
@@ -171,7 +173,42 @@ void btCommands()
 }
 void writeGLCD(int command, int mDistance)
 {
-
+   switch(command)
+   {
+      case SETUP:
+      {
+         output_low(S_GLCD); 
+         spi_write(SETUP);
+         output_high(S_GLCD); 
+         delay_us(100);
+         output_low(S_GLCD); 
+         spi_write(mDistance); 
+         delay_us(100); 
+         output_high(S_GLCD); 
+         break;
+      }
+      
+      case UPDATE:
+      {
+         output_low(S_GLCD); 
+         spi_write(UPDATE);
+         output_high(S_GLCD); 
+         delay_us(100);
+         output_low(S_GLCD); 
+         spi_write(mDistance); 
+         delay_us(100); 
+         output_high(S_GLCD); 
+         break;
+      }
+      
+      case STOP:
+      {
+         output_low(S_GLCD); 
+         spi_write(STOP);
+         output_high(S_GLCD); 
+         break;
+      }
+   }
 }
 void writePWM(int command)
 {
@@ -202,10 +239,13 @@ void readSensor()
    distancia=(timer_total*4);
    distancia=distancia/58.3;
    
+   if(distancia>99)
+   distancia=99;
+   distancia_int=(int)distancia;
    
-   printf("LSB: %x  ",timer_bajo);
-   printf("MSB: %x  ",timer_alto);
-   printf("D: %3.2f\r\n",distancia);
+   //printf("LSB: %x  ",timer_bajo);
+   //printf("MSB: %x  ",timer_alto);
+   //printf("D: %3.2f\r\n",distancia);
 }
 
 

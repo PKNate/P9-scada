@@ -10,32 +10,59 @@
 #BIT TMR0ON = 0xFD5.7
 
 #BYTE SSPBUF = 0xFC9
+
 #define STOP 4
 #define SETUP 5
-/*
+#define UPDATE 6
+
+short flagStop=1;
+short flagSetup=0;
+short flagUpdate=0;
+int prevDistance=0;
+int desiredDistance=2;
+int Distance=0;
+short erase=0;
 int data;
+
 #int_ssp
 void spi_rcv()
 {  
    data = SSPBUF;
    
+   if(flagUpdate)
+   {
+      Distance=data;
+      flagUpdate=0;
+   }
+   
+   if(flagSetup)
+   {
+      desiredDistance=data;
+      flagSetup=0;
+      flagStop=0;
+   } 
+   
    switch(data)
    {
-      case FORWARD:
+      case STOP:
       {
-         STBY=1;
-         motor('D',(int16)770,'D',(int16)700);
+         flagStop=1;
          break;
       }
       
-      case STOP:
+      case SETUP:
       {
-         STBY=0;
-         motor('N',(int16)0,'N',(int16)0);
+         flagSetup=1;
+         break;
+      }
+      
+      case UPDATE:
+      {
+         flagUpdate=1;
          break;
       }
    }
-*/
+}
 short spriteCar[14][10]={
 0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
 0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
@@ -129,10 +156,6 @@ short arrow[5][5]={
 0, 1, 1, 0, 0,
 1, 0, 0, 0, 0};
 
-int prevDistance=0;
-int desiredDistance=2;
-short erase=0;
-
 void drawCar();
 void drawDistance(int x, int y, int distance);
 void drawGoal(int distance);
@@ -142,29 +165,27 @@ void main()
 {   
    int i;
    setup_spi(spi_slave | spi_L_to_H);
-   //enable_interrupts(INT_SSP);
-   //enable_interrupts(GLOBAL);
+   enable_interrupts(INT_SSP);
+   enable_interrupts(GLOBAL);
    glcd_init(on);
    delay_ms(1000);
    
-   while (true)
+   drawCar();
+   
+   while(true)
    {
-      drawCar();
+      while(flagStop){}
       drawGoal(desiredDistance);
-      
-      for(i=99;i>1;i--)
+     
+      while(!flagStop)
       {
-         drawObstacle(i);
-         drawDistance(2,53,i);
-         delay_ms(200);
+         drawObstacle(Distance);
+         drawDistance(2,53,Distance);
          
-         if(i==desiredDistance)
+         /*if(i==desiredDistance)
             break;
+         prevDistance=0;*/
       }
-      
-      delay_ms(1000);
-      prevDistance=0;
-
    }
 }
 
