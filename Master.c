@@ -31,8 +31,9 @@ int timer_alto=0;
 int timer_bajo=0;
 int16 timer_total=0;
 float distancia=0;
-int8 distancia_int;
-int16 distance;
+int distancia_int;
+int desiredDistance;
+float desiredDistance_float;
 
 void fflush();
 void btConnection();
@@ -48,34 +49,31 @@ void main()
    output_high(S_MOTOR);
    setup_spi(spi_master | spi_l_to_h | spi_clk_div_4);
    delay_ms(5000);
-   //btConnection();
    
-   //start:
-   //btCommands();
-   Distance=17;
-   writeGLCD(SETUP,Distance);
+   btConnection();
+   start:
+   btCommands();
+   
+   desiredDistance_float=(float)desiredDistance+5.5;
+   writeGLCD(SETUP,desiredDistance);
 
    while(true)
    {
       readSensor();
       writeGLCD(UPDATE,distancia_int);
       
-      /*
-      if(>Distance)
+      if(distancia<=(desiredDistance_float))
       {
-         writeGLCD(CLOCK,mDistance);
-         writePWM(FORWARD);
+         writePWM(STOP);
+         desiredDistance=0;
+         distancia=0;
+         goto start;
       }
       
       else
       {
-         writeGLCD(CLOCK,Distance);
-         writePWM(STOP);
-         Distance=0;
-         mDistance=0;
-         goto start;
+         writePWM(FORWARD);
       }
-      */
    }
 }
 
@@ -114,7 +112,6 @@ void btConnection()
 void btCommands()
 {
    char c;
-   
    printf("ENTER COMMAND: \n\r");
    
    while(true)
@@ -128,7 +125,7 @@ void btCommands()
             case '1':
             {
                printf("START: ");
-               if(distance)
+               if(desiredDistance)
                {
                   printf("OK\n\r"); 
                   return;
@@ -143,28 +140,28 @@ void btCommands()
             {
                printf("STOP: OK\n\r");
                
-               distance=0;
+               desiredDistance=0;
                break;
             }
             
             case '3':
             {
                printf("7 CM: OK\n\r");
-               distance=7;
+               desiredDistance=7;
                break;
             }
             
             case '4':
             {
                printf("15 CM: OK\n\r");
-               distance=15;
+               desiredDistance=15;
                break;
             }
             
             case '5':
             {
                printf("19 CM: OK\n\r");
-               distance=19;
+               desiredDistance=19;
                break;
             }       
          }
@@ -212,7 +209,25 @@ void writeGLCD(int command, int mDistance)
 }
 void writePWM(int command)
 {
-
+   switch(command)
+   {
+      case STOP:
+      {
+         output_low(S_MOTOR); 
+         spi_write(STOP);
+         output_high(S_MOTOR); 
+         break;
+      }
+      
+      case FORWARD:
+      {
+         output_low(S_MOTOR); 
+         spi_write(FORWARD);
+         output_high(S_MOTOR); 
+         break;
+      }
+      
+   }
 }
 void readSensor()
 {

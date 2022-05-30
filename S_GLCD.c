@@ -170,6 +170,8 @@ void main()
    glcd_init(on);
    delay_ms(1000);
    
+   start:
+   glcd_fillScreen(0);
    drawCar();
    
    while(true)
@@ -186,6 +188,8 @@ void main()
             break;
          prevDistance=0;*/
       }
+      
+      goto start;
    }
 }
 

@@ -22,6 +22,7 @@
 #define FORWARD 3
 #define STOP 4
 
+int16 i;
 int data;
 void motor(char M1, int16 pwm1, char M2, int16 pwm2);
 
@@ -35,12 +36,14 @@ void spi_rcv()
       case FORWARD:
       {
          STBY=1;
-         motor('D',(int16)770,'D',(int16)700);
+         motor('D',(int16)420,'D',(int16)450);
          break;
       }
       
       case STOP:
       {
+         motor('R',(int16)420,'R',(int16)450);
+         for(i=0;i<200;i++){}
          STBY=0;
          motor('N',(int16)0,'N',(int16)0);
          break;
@@ -87,8 +90,8 @@ void motor(char M1, int16 pwm1, char M2, int16 pwm2)
       case 'N': {AI1=0; AI2=0; break;}
    }
    
-   set_pwm1_duty(pwm1);
-   set_pwm2_duty(pwm2);
+   set_pwm1_duty(pwm2);
+   set_pwm2_duty(pwm1);
 
    return;
 }
