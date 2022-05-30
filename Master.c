@@ -65,6 +65,7 @@ void main()
       if(distancia<=(desiredDistance_float))
       {
          writePWM(STOP);
+         writeGLCD(STOP,0);
          desiredDistance=0;
          distancia=0;
          goto start;
@@ -107,12 +108,12 @@ void btConnection()
       }
    }
 
-   printf("Connected succesfully\n\r");
+   printf("Connected succesfully\r\n");
 }
 void btCommands()
 {
    char c;
-   printf("ENTER COMMAND: \n\r");
+   printf("Enter command:\r\n");
    
    while(true)
    {
@@ -124,21 +125,21 @@ void btCommands()
          {
             case '1':
             {
-               printf("START: ");
+               printf("Start:");
                if(desiredDistance)
                {
-                  printf("OK\n\r"); 
+                  printf("OK\r\n"); 
                   return;
                }
                else
-               printf("NO DISTANCE SELECTED\n\r");
+               printf("No distance selected\r\n");
 
                break;
             }
             
             case '2':
             {
-               printf("STOP: OK\n\r");
+               printf("Stop: OK\r\n");
                
                desiredDistance=0;
                break;
@@ -146,21 +147,21 @@ void btCommands()
             
             case '3':
             {
-               printf("7 CM: OK\n\r");
+               printf("7cm: OK\r\n");
                desiredDistance=7;
                break;
             }
             
             case '4':
             {
-               printf("15 CM: OK\n\r");
+               printf("15cm: OK\r\n");
                desiredDistance=15;
                break;
             }
             
             case '5':
             {
-               printf("19 CM: OK\n\r");
+               printf("19cm: OK\r\n");
                desiredDistance=19;
                break;
             }       

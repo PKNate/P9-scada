@@ -155,41 +155,58 @@ short arrow[5][5]={
 0, 0, 0, 1, 1,
 0, 1, 1, 0, 0,
 1, 0, 0, 0, 0};
+short bluetooth[17][12]={
+0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
+0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
+1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1,
+1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1,
+1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1,
+1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 
+1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1,
+1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 
+1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
+0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
+0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0};
 
 void drawCar();
+void drawBT();
 void drawDistance(int x, int y, int distance);
 void drawGoal(int distance);
 void drawObstacle(int distance);
 
 void main()
 {   
-   int i;
    setup_spi(spi_slave | spi_L_to_H);
    enable_interrupts(INT_SSP);
    enable_interrupts(GLOBAL);
    glcd_init(on);
    delay_ms(1000);
-   
-   start:
    glcd_fillScreen(0);
-   drawCar();
+   drawBT();
    
    while(true)
-   {
+   {      
       while(flagStop){}
+    
+      glcd_fillScreen(0);
+      drawCar();
       drawGoal(desiredDistance);
      
       while(!flagStop)
       {
          drawObstacle(Distance);
          drawDistance(2,53,Distance);
-         
-         /*if(i==desiredDistance)
-            break;
-         prevDistance=0;*/
       }
-      
-      goto start;
+      glcd_fillScreen(0);
+      drawCar();
+      drawGoal(desiredDistance);
+      drawDistance(2,53,Distance);
    }
 }
 
@@ -201,7 +218,14 @@ void drawCar()
       for (j = 0; j<10; j++)
          glcd_pixel(i+17,j+26,spriteCar[i][j]);
 }
-
+void drawBT()
+{
+   int i, j;
+   
+   for (i = 0; i<17; i++)
+      for (j = 0; j<12; j++)
+         glcd_pixel(i+55,j+26,bluetooth[i][j]);
+}
 void drawObstacle(int distance)
 {
    glcd_line(31+prevDistance, 0, 31+prevDistance, 63, 0);
@@ -214,7 +238,6 @@ void drawObstacle(int distance)
       prevDistance=distance;
    }
 }
-
 void drawDistance(int x, int y, int distance)
 {
    int i, j;
@@ -245,7 +268,6 @@ void drawDistance(int x, int y, int distance)
    }
    
 }
-
 void drawGoal(int distance)
 {
    int i, j=0, k=1;

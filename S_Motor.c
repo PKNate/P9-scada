@@ -36,13 +36,13 @@ void spi_rcv()
       case FORWARD:
       {
          STBY=1;
-         motor('D',(int16)420,'D',(int16)450);
+         motor('D',(int16)420,'D',(int16)480);
          break;
       }
       
       case STOP:
       {
-         motor('R',(int16)420,'R',(int16)450);
+         motor('R',(int16)420,'R',(int16)480);
          for(i=0;i<200;i++){}
          STBY=0;
          motor('N',(int16)0,'N',(int16)0);
