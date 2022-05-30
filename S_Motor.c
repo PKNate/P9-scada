@@ -12,10 +12,10 @@
 #byte TRISC = 0xF94
 #byte TRISD = 0xF95
 #byte TRISE = 0xF96
-#bit BI1 = 0xF83.5
-#bit BI2 = 0xF83.6
-#bit AI1 = 0xF83.3
-#bit AI2 = 0xF83.2
+#bit BI2 = 0xF83.5
+#bit BI1 = 0xF83.6
+#bit AI2 = 0xF83.3
+#bit AI1 = 0xF83.2
 #bit STBY = 0xF83.4
 
 #BYTE SSPBUF = 0xFC9
