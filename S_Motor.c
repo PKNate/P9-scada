@@ -36,13 +36,13 @@ void spi_rcv()
       case FORWARD:
       {
          STBY=1;
-         motor('D',(int16)422,'D',(int16)470);
+         motor('D',(int16)440,'D',(int16)470);
          break;
       }
       
       case STOP:
       {
-         motor('R',(int16)422,'R',(int16)470);
+         motor('R',(int16)440,'R',(int16)470);
          for(i=0;i<200;i++){}
          STBY=0;
          motor('N',(int16)0,'N',(int16)0);
@@ -71,7 +71,12 @@ void main()
    
    delay_ms(1000);
    
-   while(true){}
+   while(true){
+   
+         //STBY=1;
+         //motor('D',(int16)422,'D',(int16)470);
+   
+   }
 }
 
 void motor(char M1, int16 pwm1, char M2, int16 pwm2)
@@ -89,7 +94,7 @@ void motor(char M1, int16 pwm1, char M2, int16 pwm2)
       case 'R': {AI1=0; AI2=1; break;}
       case 'N': {AI1=0; AI2=0; break;}
    }
-   
+
    set_pwm1_duty(pwm2);
    set_pwm2_duty(pwm1);
 
