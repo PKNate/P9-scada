@@ -17,4 +17,3 @@ Controls all slaves, and has a bluetooth module (HC-06) to receive instructions.
 - Distance 1 (7cm)
 - Distance 2 (15cm)
 - Distance 3 (19cm)
-- 
